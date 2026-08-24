@@ -1,0 +1,1 @@
+export function Buscador({value,onChange,placeholder}:{value:string;onChange:(v:string)=>void;placeholder:string}){return <label className="search">⌕<input aria-label="Buscar pedidos" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}/></label>}

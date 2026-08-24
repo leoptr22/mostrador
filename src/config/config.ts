@@ -1,0 +1,1 @@
+export const GOOGLE_SHEETS_API_URL='https://script.google.com/macros/s/AKfycbyNKbtJKqz7Pm6DcXOkcCZG-s-ftUqLkEscSQ4IziXy7VSmAtSTK1iZ9KTqT9V77Q-7nA/exec';export const REFRESH_INTERVAL=5000;export const TIMEZONE='America/Argentina/Buenos_Aires';export const ES_MODO_DEMO=GOOGLE_SHEETS_API_URL.includes('PEGAR_AQUI');
