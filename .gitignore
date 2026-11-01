@@ -13,6 +13,7 @@
 
 # next.js
 /.next/
+/.next-build*/
 /.vinext/
 /out/
 
@@ -36,3 +37,4 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
