@@ -13,7 +13,7 @@ export function PedidoCard({ pedido, onClick }: { pedido: Pedido; onClick: () =>
     <div className="amount">{moneda.format(pedido.importe)}</div>
     {pedido.observaciones && <div className="note"><b>OBSERVACIONES</b>{pedido.observaciones}</div>}
     <div className="card-footer">
-      <span>{pedido.estado === 'COBRADO' ? `Cobrado por ${pedido.cobradoPor}` : `Cargado por ${pedido.creadoPor}`}</span>
+      <span>{pedido.estado === 'COBRADO' ? `Cobrado por ${pedido.cobradoPor}${pedido.medioPago ? ` · ${pedido.medioPago === 'EFECTIVO' ? 'Efectivo' : 'Transferencia'}` : ''}` : `Cargado por ${pedido.creadoPor}`}</span>
       <strong>{hora(pedido.cobradoEn || pedido.creadoEn)}</strong>
     </div>
   </button>;
