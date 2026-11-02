@@ -1,5 +1,5 @@
 import { ES_MODO_DEMO, GOOGLE_SHEETS_API_URL } from '../config/config';
-import type { Pedido, PedidoInput, Puesto } from '../utils/types';
+import type { MedioPago, Pedido, PedidoInput, Puesto } from '../utils/types';
 
 let demo: Pedido[] = [];
 type ApiResponse = { ok?: boolean; error?: string; data?: unknown };
@@ -37,12 +37,12 @@ export async function actualizarPedido(id: string, datos: PedidoInput, puesto: P
   return api('actualizarPedido', { id, pedido: datos, puesto });
 }
 
-export async function marcarComoCobrado(id: string, puesto: Puesto) {
+export async function marcarComoCobrado(id: string, puesto: Puesto, medioPago: MedioPago) {
   if (ES_MODO_DEMO) {
-    demo = demo.map((pedido) => pedido.id === id ? { ...pedido, estado: 'COBRADO', cobradoPor: puesto, cobradoEn: new Date().toISOString() } : pedido);
+    demo = demo.map((pedido) => pedido.id === id ? { ...pedido, estado: 'COBRADO', cobradoPor: puesto, cobradoEn: new Date().toISOString(), medioPago } : pedido);
     return;
   }
-  return api('cobrarPedido', { id, puesto });
+  return api('cobrarPedido', { id, puesto, medioPago });
 }
 
 export async function borrarHistorial(puesto: Puesto) {
