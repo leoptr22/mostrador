@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import type { Pedido, PedidoInput, Puesto } from '../utils/types';
+import type { MedioPago, Pedido, PedidoInput, Puesto } from '../utils/types';
 import { moneda } from '../utils/format';
 import { CobroSlider } from './CobroSlider';
 
@@ -8,12 +8,13 @@ const vacio: PedidoInput = { numeroOrden: '', nombre: '', apellido: '', resumen:
 
 export function PedidoModal({ pedido, puesto, esNuevo, onClose, onSave, onCobrar }: {
   pedido: Pedido | null; puesto: Puesto; esNuevo: boolean; onClose: () => void;
-  onSave: (id: string | null, data: PedidoInput) => Promise<void>; onCobrar: (id: string) => Promise<void>;
+  onSave: (id: string | null, data: PedidoInput) => Promise<void>; onCobrar: (id: string, medioPago: MedioPago) => Promise<void>;
 }) {
   const [data, setData] = useState<PedidoInput>(pedido ? { numeroOrden: pedido.numeroOrden, nombre: pedido.nombre, apellido: pedido.apellido, resumen: pedido.resumen, importe: pedido.importe, observaciones: pedido.observaciones } : vacio);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [medioPago, setMedioPago] = useState<MedioPago | ''>('');
   const change = (key: keyof PedidoInput, value: string | number) => setData({ ...data, [key]: value });
   const etiquetaOrden = data.numeroOrden.trim() ? `Orden #${data.numeroOrden.trim()}` : 'Ticket sin número de orden';
 
@@ -30,8 +31,8 @@ export function PedidoModal({ pedido, puesto, esNuevo, onClose, onSave, onCobrar
   };
 
   const cobrar = async () => {
-    if (!pedido) return;
-    setBusy(true); await onCobrar(pedido.id); setBusy(false); onClose();
+    if (!pedido || !medioPago) return;
+    setBusy(true); await onCobrar(pedido.id, medioPago); setBusy(false); onClose();
   };
 
   return <div className="overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
@@ -47,7 +48,7 @@ export function PedidoModal({ pedido, puesto, esNuevo, onClose, onSave, onCobrar
       </div>
       {errors.general && <div className="error-box">{errors.general}</div>}
       <div className="panel-actions"><button className="secondary" onClick={onClose}>Cancelar</button><button className="primary" disabled={busy} onClick={save}>{busy ? 'Guardando…' : esNuevo ? 'Crear pedido' : 'Guardar cambios'}</button></div>
-      {puesto === 'Caja' && pedido?.estado === 'PENDIENTE' && <div className="cash-box"><span>TOTAL A COBRAR</span><strong>{moneda.format(data.importe)}</strong><CobroSlider disabled={busy} onComplete={() => setConfirm(true)} />{confirm && <div className="confirm"><b>¿Confirmar cobro?</b><div>{etiquetaOrden} · {pedido.nombre} {pedido.apellido} · {moneda.format(data.importe)}</div><div className="panel-actions"><button className="secondary" onClick={() => setConfirm(false)}>Cancelar</button><button className="primary" onClick={cobrar}>Confirmar</button></div></div>}</div>}
+      {puesto === 'Caja' && pedido?.estado === 'PENDIENTE' && <div className="cash-box"><span>TOTAL A COBRAR</span><strong>{moneda.format(data.importe)}</strong><fieldset className="payment-method"><legend>Seleccioná el medio de pago</legend><button type="button" className={medioPago === 'EFECTIVO' ? 'active' : ''} onClick={() => { setMedioPago('EFECTIVO'); setConfirm(false); }}>Efectivo</button><button type="button" className={medioPago === 'TRANSFERENCIA' ? 'active' : ''} onClick={() => { setMedioPago('TRANSFERENCIA'); setConfirm(false); }}>Transferencia</button></fieldset>{!medioPago && <p className="payment-help">Elegí cómo paga el cliente para habilitar el cobro.</p>}<CobroSlider disabled={busy || !medioPago} onComplete={() => setConfirm(true)} />{confirm && medioPago && <div className="confirm"><b>¿Confirmar cobro por {medioPago === 'EFECTIVO' ? 'efectivo' : 'transferencia'}?</b><div>{etiquetaOrden} · {pedido.nombre} {pedido.apellido} · {moneda.format(data.importe)}</div><div className="panel-actions"><button className="secondary" onClick={() => setConfirm(false)}>Cancelar</button><button className="primary" onClick={cobrar}>Confirmar</button></div></div>}</div>}
     </aside>
   </div>;
 }
