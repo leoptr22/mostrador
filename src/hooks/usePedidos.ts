@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ES_MODO_DEMO, REFRESH_INTERVAL } from '../config/config';
 import * as service from '../services/googleSheetsService';
-import type { Pedido, PedidoInput, Puesto } from '../utils/types';
+import type { MedioPago, Pedido, PedidoInput, Puesto } from '../utils/types';
 
 export function usePedidos(puesto: Puesto | null) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -29,9 +29,9 @@ export function usePedidos(puesto: Puesto | null) {
     if (id) await service.actualizarPedido(id, data, puesto); else await service.crearPedido(data, puesto);
     await refrescar(); avisar(id ? 'Pedido actualizado' : 'Pedido creado correctamente');
   };
-  const cobrar = async (id: string) => {
+  const cobrar = async (id: string, medioPago: MedioPago) => {
     if (!puesto) return;
-    await service.marcarComoCobrado(id, puesto); await refrescar(); avisar('Cobro registrado');
+    await service.marcarComoCobrado(id, puesto, medioPago); await refrescar(); avisar(`Cobro en ${medioPago === 'EFECTIVO' ? 'efectivo' : 'transferencia'} registrado`);
   };
   const borrarHistorial = async () => {
     if (!puesto) return;
